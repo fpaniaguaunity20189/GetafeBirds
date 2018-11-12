@@ -8,6 +8,7 @@ public class PajaroScript : MonoBehaviour {
     Touch pulsacion;
     Vector2 posicionInicial;
     Vector2 posicionFinal;
+    bool pajarracoSeleccionado = false;
 	void Update () {
         pulsaciones = Input.touches;
         //Si no hay pulsaciones no seguimos
@@ -16,13 +17,6 @@ public class PajaroScript : MonoBehaviour {
         }
         //Recojo la pulsación
         pulsacion = pulsaciones[0];
-
-        if (!ComprobarPulsacionObjetoByName(pulsacion, "Pajarraco")){
-            print("NO PULSADO");
-        } else {
-            print("PULSADO");
-        }
-
 
         //Evaluar las pulsaciones
         switch (pulsacion.phase) {
@@ -47,6 +41,10 @@ public class PajaroScript : MonoBehaviour {
         }
 	}
     void ComenzarToque() {
+        if (!ComprobarPulsacionObjetoByName(pulsacion, "Pajarraco")){
+            return;
+        }
+        pajarracoSeleccionado = true;
         //Obtenemos el vector de posición en el mundo del juego
         Vector2 posicionConvertida = getWorldPosition(pulsacion);
         //Asignamos la nueva posición
@@ -54,12 +52,21 @@ public class PajaroScript : MonoBehaviour {
         posicionInicial = posicionConvertida;
     }
     void MoverToque() {
+        if (!pajarracoSeleccionado)
+        {
+            return;
+        }
         //Obtenemos el vector de posición en el mundo del juego
         Vector2 posicionConvertida = getWorldPosition(pulsacion);
         //Asignamos la nueva posición
         transform.position = posicionConvertida;
     }
     void FinalizarToque() {
+        if (!pajarracoSeleccionado)
+        {
+            return;
+        }
+        pajarracoSeleccionado = false;
         //Asignamos la nueva posición
         posicionFinal = getWorldPosition(pulsacion);
         //Calculamos direccion
