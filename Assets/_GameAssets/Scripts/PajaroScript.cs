@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class PajaroScript : MonoBehaviour {
-    public int force;
+    public int maxForce = 500;
     Touch[] pulsaciones;
     Touch pulsacion;
     Vector2 posicionInicial;
@@ -11,11 +11,18 @@ public class PajaroScript : MonoBehaviour {
 	void Update () {
         pulsaciones = Input.touches;
         //Si no hay pulsaciones no seguimos
-        if (pulsaciones.Length==0) {
+        if (pulsaciones.Length!=1) {
             return;
         }
         //Recojo la pulsación
         pulsacion = pulsaciones[0];
+
+        if (!ComprobarPulsacionObjetoByName(pulsacion, "Pajarraco")){
+            print("NO PULSADO");
+        } else {
+            print("PULSADO");
+        }
+
 
         //Evaluar las pulsaciones
         switch (pulsacion.phase) {
@@ -56,14 +63,27 @@ public class PajaroScript : MonoBehaviour {
         //Asignamos la nueva posición
         posicionFinal = getWorldPosition(pulsacion);
         //Calculamos direccion
-        Vector2 direccion = (posicionInicial - posicionFinal).normalized;
+        Vector2 vectorDistancia = (posicionInicial - posicionFinal);
+        Vector2 vectorDireccion = vectorDistancia.normalized;
+        float distancia = vectorDistancia.magnitude;
         //Ponemos el rigidbody2d en modo kinematic
         GetComponent<Rigidbody2D>().isKinematic = false;
         //Le damos un empujon
-        GetComponent<Rigidbody2D>().AddRelativeForce(direccion * force);
+        GetComponent<Rigidbody2D>().AddRelativeForce(vectorDireccion * distancia * maxForce);
     }
     private Vector2 getWorldPosition(Touch _t) {
         return Camera.main.ScreenToWorldPoint(new Vector2(_t.position.x, _t.position.y));
+    }
+    private bool ComprobarPulsacionObjetoByName(Touch _t, string _name) {
+        bool estaPulsado = false;
+        Vector3 touchWorldPosition = getWorldPosition(_t);
+        Debug.DrawLine(Camera.main.transform.position, touchWorldPosition, Color.red, 1000);
+        RaycastHit2D rch2d = Physics2D.Raycast(Camera.main.transform.position, touchWorldPosition);
+        if (rch2d.transform != null & rch2d.transform.gameObject.name == _name) {
+
+            estaPulsado = true;
+        }
+        return estaPulsado;
     }
     /*
     private Vector3 getWorldPosition(Touch _t) {
